@@ -6,6 +6,20 @@ class UsersLoginTest < ActionDispatch::IntegrationTest
     @user = users(:michael)
   end
   
+  test "login with remembering" do
+    log_in_as(@user, remember_me: '1')
+    assert_not_empty cookies['remember_token']
+  end
+
+  test "login without remembering" do
+    # 登录，设定 cookie
+    log_in_as(@user, remember_me: '1')
+    delete logout_path
+    # 再次登录，确认 cookie 被删除了
+    log_in_as(@user, remember_me: '0')
+    assert_empty cookies['remember_token']
+  end
+  
   test "login with valid information followed by logout" do
     get login_path
     post login_path, params: { session: { email:    @user.email,
@@ -20,6 +34,8 @@ class UsersLoginTest < ActionDispatch::IntegrationTest
     delete logout_path
     assert_not is_logged_in?
     assert_redirected_to root_url
+    # 模拟用户在另一个窗口中点击退出链接
+    delete logout_path
     follow_redirect!
     assert_select "a[href=?]", login_path
     assert_select "a[href=?]", logout_path,      count: 0
