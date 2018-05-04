@@ -11,18 +11,27 @@ module SessionsHelper
     cookies.permanent[:remember_token] = user.remember_token
   end
   
-   # 返回当前登录的用户（如果有的话）
+  # 現在ログイン中のユーザーを返す (いる場合)
+  #def current_user
+   # @current_user ||= User.find_by(id: session[:user_id])
+  #end
+  
+  # 返回 cookie 中记忆令牌对应的用户
   def current_user
     if (user_id = session[:user_id])
       @current_user ||= User.find_by(id: user_id)
     elsif (user_id = cookies.signed[:user_id])
-      #raise       # 测试仍能通过，所以没有覆盖这个分支
       user = User.find_by(id: user_id)
       if user && user.authenticated?(cookies[:remember_token])
         log_in user
         @current_user = user
       end
     end
+  end
+  
+  # 如果指定用户是当前用户，返回 true
+  def current_user?(user)
+    user == current_user
   end
   
    # 如果用户已登录，返回 true，否则返回 false
@@ -41,6 +50,17 @@ module SessionsHelper
     forget(current_user)
     session.delete(:user_id)
     @current_user = nil
+  end
+  
+    # 重定向到存储的地址或者默认地址
+  def redirect_back_or(default)
+    redirect_to(session[:forwarding_url] || default)
+    session.delete(:forwarding_url)
+  end
+
+  # 存储后面需要使用的地址
+  def store_location
+    session[:forwarding_url] = request.original_url if request.get?
   end
   
 end
