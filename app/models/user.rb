@@ -24,6 +24,8 @@ class User < ApplicationRecord
              length: { minimum: 6}, 
              allow_nil: true
              
+  has_many :microposts, dependent: :destroy
+             
   class << self
     # 返回指定字符串的哈希摘要
     def User.digest(string)
@@ -80,6 +82,10 @@ class User < ApplicationRecord
   # 忘记用户
   def forget
     update_attribute(:remember_digest, nil)
+  end
+  
+  def feed
+    Micropost.where("user_id = ?", id)
   end
   
   private
