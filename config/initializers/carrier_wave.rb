@@ -3,8 +3,8 @@ if Rails.env.production?
     config.fog_credentials = {
       # Amazon S3 的配置
       :provider              => 'AWS',
-      :aws_access_key_id     => ENV['AKIAIK7TQA24Z7OMNBTQ'],
-      :aws_secret_access_key => ENV['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']
+      :aws_access_key_id     => ENV[''],
+      :aws_secret_access_key => ENV['']
     }
     config.fog_directory     =  ENV['S3_BUCKET']
   end
